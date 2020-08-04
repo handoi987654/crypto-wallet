@@ -37,13 +37,34 @@ const getProfile = () => axios.get('https://fptfunding.com/api/User/UserProfile'
     },
 })
 
+const updateProfile = userProfile => axios.put('https://fptfunding.com/api/User/UpdateProfile', userProfile, {
+    headers: {
+        Authorization: `Bearer ${authService.getToken()}`
+    },
+})
+
+const deposit = amount => axios.post('https://fptfunding.com/api/Wallet/Deposit', {amount}, {
+    headers: {
+        Authorization: `Bearer ${authService.getToken()}`
+    },
+})
+
+const withdraw = amount => axios.post('https://fptfunding.com/api/Wallet/Withdraw', {amount}, {
+    headers: {
+        Authorization: `Bearer ${authService.getToken()}`
+    },
+})
+
 const appService = {
     getTransaction,
     getWallet,
     getProfile,
+    updateProfile,
     addCard,
     getCard,
     removeCard,
+    deposit,
+    withdraw,
 }
 
 export default appService;

@@ -39,7 +39,6 @@ class CardAdding extends Component {
         let errors = '';
 
         const number = parseInt(this.state.cardNumber) + '';
-        console.log(number);
         if (number !== this.state.cardNumber) {
             valid = false;
             errors += '- Card number is invalid!\n'
@@ -51,7 +50,6 @@ class CardAdding extends Component {
         }
 
         const cvc = this.state.cvc;
-        console.log(cvc);
         for (let i = 0; i < cvc.length; i++) {
             const charCode = cvc.charCodeAt(i);
             if (charCode < 48 || charCode > 57) {
@@ -79,9 +77,7 @@ class CardAdding extends Component {
                 expMonth: expiredDate.getMonth() + 1,
                 cvc: this.state.cvc,
                 brand: 'Visa',
-            }).then(response => {
-                console.log(response);
-
+            }).then(() => {
                 const dispatch = this.context[1];
                 dispatch({action: RELOAD_CARD});
 

@@ -4,7 +4,7 @@ import {LinearGradient} from "expo-linear-gradient";
 import service from "../service";
 import Card from "../component/Card";
 import {Store} from "../../Store";
-import {DISCARD_CARD, UPDATE_WALLET, UPDATE_CARD} from "../constant";
+import {DISCARD_CARD, UPDATE_WALLET, UPDATE_CARD, RELOAD_BALANCE} from "../constant";
 import Button from "../component/Button";
 
 class Summary extends Component {
@@ -13,6 +13,7 @@ class Summary extends Component {
     state = {
         deposit: false,
         withdraw: false,
+        amount: '',
     }
 
     cardChecking = cardExisted => {
@@ -43,16 +44,10 @@ class Summary extends Component {
         }
     }
 
-    openDepositModal = () => this.setState({deposit: true});
-
-    openWithdrawModal = () => this.setState({withdraw: true});
-
     actionChecking = cardExisted => {
         const buttonStyle = cardExisted ? styles.activeButton : styles.disabledButton;
-        const depositEvent = cardExisted ? this.openDepositModal : () => {
-        };
-        const withdrawEvent = cardExisted ? this.openWithdrawModal : () => {
-        };
+        const depositEvent = cardExisted ? this.openDepositModal : null;
+        const withdrawEvent = cardExisted ? this.openWithdrawModal : null;
 
         return (<View style={styles.actionView}>
             <TouchableOpacity style={{...buttonStyle, ...styles.shadow}}
@@ -66,7 +61,27 @@ class Summary extends Component {
         </View>)
     }
 
-    componentDidMount() {
+    exchange = async () => {
+        const dispatch = this.context[1];
+        dispatch({action: RELOAD_BALANCE});
+        this.setState({deposit: false, withdraw: false});
+
+        const amount = parseInt(this.state.amount);
+        const {status} = await (this.state.deposit ?
+            service.deposit(amount) : service.withdraw(amount));
+        if (status === 200) {
+            this.updateWallet();
+        } else {
+            alert('Error while making transaction!');
+        }
+
+    }
+
+    openDepositModal = () => this.setState({deposit: true});
+
+    openWithdrawModal = () => this.setState({withdraw: true});
+
+    updateWallet = () => {
         const dispatch = this.context[1];
         service.getWallet()
             .then(response => dispatch({
@@ -82,21 +97,32 @@ class Summary extends Component {
                     balance: '???'
                 }
             }))
+    }
+
+    updateCardInfo = () => {
+        const dispatch = this.context[1];
         service.getCard()
-            .then(({data}) => dispatch({
-                action: UPDATE_CARD,
-                params: {
-                    card: {
-                        name: data.name,
-                        number: `**** **** **** ${data.number}`,
-                        expYear: data.expYear,
-                        expMonth: data.expMonth,
-                        cvc: data.cvc,
-                        brand: data.brand,
+            .then(({data}) => {
+                dispatch({
+                    action: UPDATE_CARD,
+                    params: {
+                        card: {
+                            name: data.name,
+                            number: `**** **** **** ${data.number}`,
+                            expYear: data.expYear,
+                            expMonth: data.expMonth,
+                            cvc: data.cvc,
+                            brand: data.brand,
+                        }
                     }
-                }
-            }))
+                })
+            })
             .catch(() => dispatch({action: DISCARD_CARD}));
+    }
+
+    componentDidMount() {
+        this.updateWallet();
+        this.updateCardInfo();
     }
 
     render() {
@@ -106,25 +132,25 @@ class Summary extends Component {
         return (
             <View style={styles.view}>
                 <View style={styles.balanceCard}>
-                    <LinearGradient colors={['#56CCF2', '#2F80ED']}
-                                    start={{x: 0, y: 0}} end={{x: 1, y: 1}}
-                                    style={styles.background}>
+                    <LinearGradient colors={['#56CCF2', '#2F80ED']} style={styles.background}
+                                    start={{x: 0, y: 0}} end={{x: 1, y: 1}}>
                         <Text style={styles.text}>Balance</Text>
                         <Text style={styles.balance}>{balance === -1 ? 'Loading...' : `$ ${balance}`}</Text>
                     </LinearGradient>
                 </View>
                 {this.cardChecking(cardExisted)}
                 {this.actionChecking(cardExisted)}
-                <Modal animationType={'fade'}
-                       transparent={true}
+                <Modal animationType={'fade'} transparent={true}
                        visible={this.state.deposit || this.state.withdraw}>
                     <TouchableOpacity style={{flex: 1}}
                                       onPress={() => this.setState({deposit: false, withdraw: false})}>
                         <View style={styles.modalView}>
                             <View style={styles.modal}>
                                 <Text style={{fontSize: 16}}>Amount to {action.toLowerCase()}:</Text>
-                                <TextInput style={styles.amountInput}/>
-                                <Button text={action}/>
+                                <TextInput style={styles.amountInput} keyboardType={'number-pad'}
+                                           value={this.state.amount}
+                                           onChangeText={text => this.setState({amount: text})}/>
+                                <Button text={action} onPress={this.exchange}/>
                             </View>
                         </View>
                     </TouchableOpacity>

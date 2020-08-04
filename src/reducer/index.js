@@ -1,4 +1,4 @@
-import {DISCARD_CARD, RELOAD_CARD, UPDATE_WALLET, UPDATE_CARD} from "../constant";
+import {DISCARD_CARD, RELOAD_CARD, UPDATE_WALLET, UPDATE_CARD, RELOAD_BALANCE} from "../constant";
 
 const reducer = (store, payload) => {
     switch (payload.action) {
@@ -10,10 +10,11 @@ const reducer = (store, payload) => {
         case UPDATE_CARD:
             return {...store, card: payload.params.card, cardExisted: true}
         case DISCARD_CARD:
-            // TODO: change True to False
-            return {...store, cardExisted: true}
+            return {...store, cardExisted: false}
         case RELOAD_CARD:
             return {...store, cardExisted: null}
+        case RELOAD_BALANCE:
+            return {...store, balance: -1}
         default:
             return store;
     }

@@ -16,7 +16,8 @@ class HistoryList extends Component {
         } else {
             return <FlatList data={this.state.historyList}
                              renderItem={({item}) => <History history={item}/>}
-                             keyExtractor={item => item.donateId}/>
+                             keyExtractor={item => item.donateId}>
+            </FlatList>
         }
     }
 
@@ -33,7 +34,6 @@ class HistoryList extends Component {
 
     render() {
         const {navigation} = this.props;
-
         return (
             <View style={{flex: 0.9, padding: 16, justifyContent: 'center'}}>
                 {this.mainScreen(this.state.loaded)}
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'absolute',
         width: 128,
-        height: 48,
+        height: 40,
         borderRadius: 24,
         backgroundColor: '#2F80ED',
         bottom: -32,

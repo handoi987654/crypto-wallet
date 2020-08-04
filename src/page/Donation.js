@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {ScrollView, View, StyleSheet, Text, TextInput, TouchableOpacity} from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import {Ionicons} from '@expo/vector-icons';
 import {Store} from "../../Store";
 import Button from "../component/Button";
-import {Ionicons} from '@expo/vector-icons';
+import OutlineButton from "../component/OutlineButton";
 
 class Donation extends Component {
     static contextType = Store;
@@ -42,8 +43,7 @@ class Donation extends Component {
                 </View>
                 <Text style={{marginVertical: 8}}>Wallet ID:</Text>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TextInput multiline={true}
-                               value={receiverId}
+                    <TextInput multiline={true} value={receiverId}
                                style={{...styles.inputBox, width: '80%'}}/>
                     <TouchableOpacity style={styles.QRButton}
                                       onPress={() => navigation.navigate('QRScanner')}>
@@ -58,7 +58,11 @@ class Donation extends Component {
                 <Text style={{marginVertical: 8}}>Message:</Text>
                 <TextInput multiline={true} numberOfLines={4}
                            value={'Some message'} style={styles.inputBox}/>
-                <Button text={'Donate'}/>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <OutlineButton text={'Cancel'} width={'48%'}
+                                   onPress={() => navigation.goBack()}/>
+                    <Button text={'Donate'} width={'48%'}/>
+                </View>
                 <View style={{height: 32}}/>
             </ScrollView>
         )
